@@ -121,7 +121,8 @@
             background-color: #ff4757;
             color: white;
             box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
-            transition: all 0.2s ease;
+            transition: all 0.3s ease; /* Slightly slower transition for smoother movement */
+            z-index: 100; /* Ensure it stays on top */
         }
 
         /* Celebration Screen (Hidden by default) */
@@ -275,17 +276,24 @@
             // Get button dimensions
             const btnRect = noBtn.getBoundingClientRect();
             
-            // Calculate max allowed positions (keeping padding)
-            // We use fixed positioning to break it out of the flex container instantly
-            const maxLeft = viewportWidth - btnRect.width - 20;
-            const maxTop = viewportHeight - btnRect.height - 20;
+            // Increased safety margin (100px) to keep it well away from edges on PC/Laptop
+            const margin = 100;
 
-            const newLeft = Math.floor(Math.random() * (maxLeft - 20)) + 20;
-            const newTop = Math.floor(Math.random() * (maxTop - 20)) + 20;
+            // Calculate safe boundaries
+            // Subtract button size and margin from viewport size
+            const maxLeft = viewportWidth - btnRect.width - margin;
+            const maxTop = viewportHeight - btnRect.height - margin;
 
-            noBtn.style.position = 'fixed';
+            // Generate random position within safe bounds
+            // Math.max ensures we don't return negative values on smaller screens
+            // Formula: Random * (Range) + StartOffset
+            const newLeft = Math.max(margin, Math.floor(Math.random() * (maxLeft - margin)));
+            const newTop = Math.max(margin, Math.floor(Math.random() * (maxTop - margin)));
+
+            noBtn.style.position = 'fixed'; // Break out of flow
             noBtn.style.left = newLeft + 'px';
             noBtn.style.top = newTop + 'px';
+            noBtn.style.zIndex = '9999'; // Ensure it's always on top of everything
             
             // Add a little rotation for fun
             const randomRot = Math.floor(Math.random() * 40) - 20;
