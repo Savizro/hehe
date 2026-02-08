@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine?</title>
+    <!-- Importing cinematic fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff6b81;
+            --secondary: #ff9eb5;
+            --bg-color: #ffeef2;
+            --text-color: #5c3a42;
+            --white: #ffffff;
+            --shadow: rgba(255, 107, 129, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none; /* Prevent text selection during frantic clicking */
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #ffeef2 0%, #ffe3e8 100%);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* Prevent scrolling when button runs away */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Floating background hearts */
+        .bg-heart {
+            position: absolute;
+            color: rgba(255, 107, 129, 0.1);
+            font-size: 2rem;
+            animation: float 6s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        /* Main Container */
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 90%;
+            width: 600px;
+            transition: transform 0.3s ease, opacity 0.5s ease;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: var(--primary);
+            font-size: 3.5rem;
+            margin-bottom: 2.5rem;
+            text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 3rem;
+            position: relative; /* Context for button positioning */
+            min-height: 80px; /* Reserve space */
+        }
+
+        button {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 18px 45px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        /* Yes Button */
+        .btn-yes {
+            background-color: #2ed573;
+            color: white;
+            box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4);
+            animation: bounce 2s infinite;
+        }
+
+        .btn-yes:hover {
+            transform: scale(1.1);
+            background-color: #26af61;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+
+        /* No Button */
+        .btn-no {
+            background-color: #ff4757;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        /* Celebration Screen (Hidden by default) */
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle, #ffeef2 0%, #ffcccd 100%);
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
+
+        .celebration.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .celebration h2 {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 4.5rem;
+            line-height: 1.2;
+            letter-spacing: 1px;
+            color: #ff4757;
+            text-align: center;
+            margin-bottom: 30px;
+            animation: popIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            padding: 0 20px;
+        }
+
+        .celebration p {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #5c3a42;
+            margin-top: 20px;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Canvas for confetti */
+        #confetti-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* Music Toggle */
+        .music-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            z-index: 50;
+            font-size: 1.5rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .music-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 { font-size: 2.2rem; }
+            .buttons { flex-direction: column; gap: 1rem; }
+            button { width: 100%; }
+            .btn-no { position: relative; } 
+            .celebration h2 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Floating Background Hearts -->
+    <div id="bg-hearts-container"></div>
+
+    <!-- Music Toggle -->
+    <div class="music-toggle" id="musicToggle" title="Play Music">
+        🔇
+    </div>
+
+    <!-- Main Question Screen -->
+    <div class="container" id="mainContainer">
+        <h1>Will you be my Valentine?</h1>
+        <p style="color: #888; margin-bottom: 30px; font-size: 1rem; letter-spacing: 1px; text-transform: uppercase;">(There's only one right answer...)</p>
+        <div class="buttons">
+            <button class="btn-yes" id="yesBtn">YES! 😍</button>
+            <button class="btn-no" id="noBtn">No 😢</button>
+        </div>
+    </div>
+
+    <!-- Celebration Screen -->
+    <div class="celebration" id="celebrationScreen">
+        <canvas id="confetti-canvas"></canvas>
+        <h2>YAY! DATE ON THE 14TH IS ON BABE ❤️</h2>
+        <p>I knew you'd say yes! 😉</p>
+    </div>
+
+    <script>
+        // --- Logic for Background Hearts ---
+        const bgContainer = document.getElementById('bg-hearts-container');
+        const heartSymbols = ['❤️', '💖', '💕', '💘', '💝'];
+
+        for (let i = 0; i < 20; i++) {
+            const el = document.createElement('div');
+            el.classList.add('bg-heart');
+            el.innerText = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.top = Math.random() * 100 + 'vh';
+            el.style.animationDuration = (Math.random() * 3 + 4) + 's';
+            el.style.animationDelay = Math.random() * 5 + 's';
+            el.style.opacity = Math.random() * 0.3 + 0.1;
+            bgContainer.appendChild(el);
+        }
+
+        // --- Logic for the Runaway "No" Button ---
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const mainContainer = document.getElementById('mainContainer');
+
+        const moveNoButton = () => {
+            // Get viewport dimensions
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // Get button dimensions
+            const btnRect = noBtn.getBoundingClientRect();
+            
+            // Calculate max allowed positions (keeping padding)
+            // We use fixed positioning to break it out of the flex container instantly
+            const maxLeft = viewportWidth - btnRect.width - 20;
+            const maxTop = viewportHeight - btnRect.height - 20;
+
+            const newLeft = Math.floor(Math.random() * (maxLeft - 20)) + 20;
+            const newTop = Math.floor(Math.random() * (maxTop - 20)) + 20;
+
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = newLeft + 'px';
+            noBtn.style.top = newTop + 'px';
+            
+            // Add a little rotation for fun
+            const randomRot = Math.floor(Math.random() * 40) - 20;
+            noBtn.style.transform = `rotate(${randomRot}deg)`;
+        };
+
+        // Events to trigger the movement
+        noBtn.addEventListener('mouseover', moveNoButton);
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevent click on mobile
+            moveNoButton();
+        });
+        noBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            moveNoButton();
+        });
+
+        // --- Logic for Celebration ---
+        const celebrationScreen = document.getElementById('celebrationScreen');
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+
+        yesBtn.addEventListener('click', () => {
+            // Hide main container
+            mainContainer.style.opacity = '0';
+            mainContainer.style.transform = 'scale(0.8)';
+            
+            setTimeout(() => {
+                mainContainer.style.display = 'none';
+                celebrationScreen.classList.add('active');
+                startConfetti();
+                playHappySound(); // Play a little victory sound even if music is off
+            }, 500);
+        });
+
+        // --- Confetti Logic (Heart Shapes) ---
+        let particles = [];
+        let animationId;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = -20;
+                this.size = Math.random() * 20 + 10;
+                this.speedY = Math.random() * 3 + 2;
+                this.speedX = Math.random() * 4 - 2;
+                this.color = `hsl(${Math.random() * 60 + 330}, 100%, 70%)`; // Pinks and Reds
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 4 - 2;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.rotationSpeed;
+                if (this.y > canvas.height) {
+                    this.y = -20;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation * Math.PI / 180);
+                ctx.fillStyle = this.color;
+                
+                // Draw Heart
+                ctx.beginPath();
+                const topCurveHeight = this.size * 0.3;
+                ctx.moveTo(0, topCurveHeight);
+                ctx.bezierCurveTo(0, 0, -this.size / 2, 0, -this.size / 2, topCurveHeight);
+                ctx.bezierCurveTo(-this.size / 2, (this.size + topCurveHeight) / 2, 0, this.size, 0, this.size);
+                ctx.bezierCurveTo(0, this.size, this.size / 2, (this.size + topCurveHeight) / 2, this.size / 2, topCurveHeight);
+                ctx.bezierCurveTo(this.size / 2, 0, 0, 0, 0, topCurveHeight);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function startConfetti() {
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle());
+            }
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            animationId = requestAnimationFrame(animateConfetti);
+        }
+
+        // --- Web Audio API Music & Sound ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let isPlaying = false;
+        let musicInterval;
+
+        const musicToggle = document.getElementById('musicToggle');
+
+        // Simple synth function
+        function playNote(freq, duration, type = 'sine') {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = type;
+            osc.frequency.value = freq;
+            
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playVictorySound() {
+            if(!audioCtx) audioCtx = new AudioContext();
+            // Arpeggio
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                setTimeout(() => playNote(freq, 0.5, 'triangle'), i * 100);
+            });
+        }
+        
+        // Alias for the celebration call
+        window.playHappySound = playVictorySound;
+
+        // Background loop melody
+        const melody = [
+            { f: 523.25, d: 200 }, { f: 659.25, d: 200 }, { f: 783.99, d: 200 }, 
+            { f: 659.25, d: 200 }, { f: 523.25, d: 400 }, { f: 0, d: 100 }
+        ];
+        let noteIndex = 0;
+
+        function startMusic() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            isPlaying = true;
+            musicToggle.innerText = '🔊';
+            
+            function playNextNote() {
+                if (!isPlaying) return;
+                const note = melody[noteIndex % melody.length];
+                if (note.f > 0) playNote(note.f, 0.3, 'sine');
+                
+                noteIndex++;
+                setTimeout(playNextNote, note.d + 100);
+            }
+            playNextNote();
+        }
+
+        function stopMusic() {
+            isPlaying = false;
+            musicToggle.innerText = '🔇';
+        }
+
+        musicToggle.addEventListener('click', () => {
+            if (isPlaying) {
+                stopMusic();
+            } else {
+                startMusic();
+            }
+        });
+
+    </script>
+</body>
+</html>
